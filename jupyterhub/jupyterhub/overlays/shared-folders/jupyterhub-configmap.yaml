@@ -1,0 +1,42 @@
+- op: add
+  path: /data/jupyterhub_config.py
+  value: |
+    def pvc_mounts(spawner,pod):
+      # Apply profile from singleuser-profiles
+      apply_pod_profile(spawner, pod)
+
+      # Get shared folders, user groups and admins (for R/W access)
+      import collections
+      sharedFolder = collections.namedtuple('sharedFolder', ['name', 'userGroup', 'claimName','mountPath','readOnly'])
+      userGroup = collections.namedtuple('userGroup', ['name','admins','users'])
+
+      volumes=eval(spawner.single_user_profiles.read_config_map('jupyterhub-sharedfolders','volumes'))
+      groups=eval(spawner.single_user_profiles.read_config_map('jupyterhub-sharedfolders','groups'))
+
+      for vol in volumes:
+        group=[g for g in groups if g.name == vol.userGroup][0]
+        if (spawner.user.name in group.users or spawner.user.name in group.admins or group.users == '*') :
+            # User allowed to mount volume
+            pod.spec.volumes.append(dict(name=vol.name,persistentVolumeClaim=dict(claimName=vol.claimName)))
+            if (spawner.user.name in group.admins or vol.readOnly == False) :
+                readOnly = False
+            else:
+                readOnly = True
+            pod.spec.containers[0].volume_mounts.append(dict(name=vol.name,mountPath='/opt/app-root/src/'+vol.mountPath,readOnly=readOnly))
+
+      # Mount LMod volume for everyone
+      pod.spec.volumes.append(dict(name='jupyterhub-easybuild-data',persistentVolumeClaim=dict(claimName='jupyterhub-easybuild-data')))
+      pod.spec.containers[0].volume_mounts.append(dict(name='jupyterhub-easybuild-data',mountPath='/opt/apps/easybuild',readOnly=True))
+
+      # Function modify_pod_hook must return the pod instance
+      return pod
+ 
+    c.OpenShiftSpawner.modify_pod_hook = pvc_mounts
+  
+- op: replace
+  path: /data/jupyterhub_admins
+  value: "$(jupyterhub_admins)"
+
+- op: replace
+  path: /data/singleuser_pvc_size
+  value: "$(singleuser_pvc_size)"
