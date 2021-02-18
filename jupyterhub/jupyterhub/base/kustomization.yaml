@@ -55,5 +55,19 @@ vars:
     apiVersion: v1
   fieldref:
     fieldpath: data.jupyterhub_groups_config
+- name: jupyterhub_admins
+  objref:
+    kind: ConfigMap
+    name: parameters
+    apiVersion: v1
+  fieldref:
+    fieldpath: data.jupyterhub_admins
+- name: singleuser_pvc_size
+  objref:
+    kind: ConfigMap
+    name: parameters
+    apiVersion: v1
+  fieldref:
+    fieldpath: data.singleuser_pvc_size
 configurations:
 - params.yaml

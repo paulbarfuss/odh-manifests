@@ -1,0 +1,8 @@
+- op: add
+  path: /spec/template/spec/containers/0/env/-
+  value: 
+    name: JUPYTERHUB_CONFIG
+    valueFrom:
+      configMapKeyRef:
+        name: jupyterhub-cfg
+        key: jupyterhub_config.py

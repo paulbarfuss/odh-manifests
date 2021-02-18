@@ -1,0 +1,27 @@
+- op: replace
+  path: /data/jupyterhub_config.py
+  value: |
+    from kubernetes.client import V1Volume, V1VolumeMount, V1PersistentVolumeClaimVolumeSource
+    def modules_mount(spawner,pod):
+      # Apply original Pod profile
+      apply_pod_profile(spawner, pod)
+
+      # Mount shared modules volume
+      volume_name='ebdata'
+      pvc = V1PersistentVolumeClaimVolumeSource('easybuild-data', read_only=True)
+      mount_path = '/opt/apps/easybuild'
+      pod.spec.volumes.append(V1Volume(name=volume_name, persistent_volume_claim=pvc))
+      pod.spec.containers[0].volume_mounts.append(V1VolumeMount(name=volume_name, mount_path=mount_path,read_only=True))
+      return pod
+      
+    c.OpenShiftSpawner.modify_pod_hook = modules_mount
+
+    c.KubeSpawner.cmd = ['/tmp/scripts/run']
+  
+- op: replace
+  path: /data/jupyterhub_admins
+  value: "$(jupyterhub_admins)"
+
+- op: replace
+  path: /data/singleuser_pvc_size
+  value: "$(singleuser_pvc_size)"
