@@ -48,6 +48,20 @@ vars:
     apiVersion: v1
   fieldref:
     fieldpath: data.s3_endpoint_url
+- name: jupyterhub_admins
+  objref:
+    kind: ConfigMap
+    name: parameters
+    apiVersion: v1
+  fieldref:
+    fieldpath: data.jupyterhub_admins
+- name: singleuser_pvc_size
+  objref:
+    kind: ConfigMap
+    name: parameters
+    apiVersion: v1
+  fieldref:
+    fieldpath: data.singleuser_pvc_size
 - name: jupyterhub_groups_config
   objref:
     kind: ConfigMap
