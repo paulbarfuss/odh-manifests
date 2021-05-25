@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spark-history-server
+  labels:
+    app.kubernetes.io/name: spark-history-server
+    app.kubernetes.io/instance: my-spark-history-server
+data:
+  enablePVC: "false"
+  enableGCS: "false"
+  enableS3: "true"
+  enableWASBS: "false"
+  eventsDir: "/"
+  existingClaimName: ""
