@@ -9,5 +9,5 @@ patchesJson6902:
   - target:
       kind: PersistentVolumeClaim
       version: v1
-      name: trino-db-db
+      name: trino-db-volume
     path: pvc-patch.yaml

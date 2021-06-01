@@ -57,6 +57,13 @@ vars:
       name: trino-config
     fieldref:
       fieldpath: data.s3_credentials_secret
+  - name: s3_bucket
+    objref:
+      kind: ConfigMap
+      apiVersion: v1
+      name: trino-config
+    fieldref:
+      fieldpath: data.s3_bucket
   - name: trino_environment
     objref:
       kind: ConfigMap
@@ -99,6 +106,13 @@ vars:
       kind: ConfigMap
     fieldref:
       fieldpath: data.hive_metastore_memory_limit
+  - name: storage_class
+    objref:
+      name: trino-config
+      apiVersion: v1
+      kind: ConfigMap
+    fieldref:
+      fieldpath: data.storage_class
   - name: trino_cpu_request
     objref:
       name: trino-config
