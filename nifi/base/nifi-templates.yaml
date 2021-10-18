@@ -1,0 +1,21 @@
+---
+# Source: nifi/charts/registry/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "nifi-registry-test-connection"
+  labels:
+    helm.sh/chart: registry-0.3.2
+    app.kubernetes.io/name: registry
+    app.kubernetes.io/instance: nifi
+    app.kubernetes.io/version: "0.8.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['nifi-registry:80/nifi-registry']
+  restartPolicy: Never

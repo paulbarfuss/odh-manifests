@@ -1,0 +1,20 @@
+---
+# Source: nifi/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nifi
+  labels:
+    app: "nifi"
+    chart: "nifi-0.7.9"
+    release: "nifi"
+    heritage: "Helm"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      name: http
+      targetPort: 8080
+  selector:
+    app: nifi
+    release: nifi

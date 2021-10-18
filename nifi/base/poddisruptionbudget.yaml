@@ -1,0 +1,19 @@
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: nifi-zookeeper
+  namespace: spark-operator
+  labels:
+    app.kubernetes.io/name: zookeeper
+    helm.sh/chart: zookeeper-5.23.0
+    app.kubernetes.io/instance: nifi
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: zookeeper
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: zookeeper
+      app.kubernetes.io/instance: nifi
+      app.kubernetes.io/component: zookeeper
+  maxUnavailable: 1

@@ -1,0 +1,18 @@
+---
+# Source: nifi/templates/route.yaml
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  labels:
+    app: "nifi"
+    chart: "nifi-0.7.9"
+    release: "nifi"
+    heritage: "Helm"
+  name: nifi
+spec:
+  to:
+    kind: Service
+    name: nifi
+    weight: 100
+  port:
+    targetPort: http
