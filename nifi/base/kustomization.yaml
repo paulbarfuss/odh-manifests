@@ -7,7 +7,6 @@ resources:
   - serviceaccount-registry.yaml
   - serviceaccount-nifi.yaml
   - scc.yaml
-  - secret-nifi-registry-config.yaml
   - configmap-nifi-config.yaml
   - service-registry.yaml
   - service-nifi-zookeeper-headless.yaml
