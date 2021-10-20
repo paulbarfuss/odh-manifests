@@ -1,15 +1,12 @@
 ---
-# Source: nifi/charts/registry/templates/statefulset.yaml
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: nifi-registry
   labels:
-    helm.sh/chart: registry-0.3.2
     app.kubernetes.io/name: registry
     app.kubernetes.io/instance: nifi
-    app.kubernetes.io/version: "0.8.0"
-    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.13.2"
 spec:
   replicas: 1
   selector:
@@ -58,17 +55,12 @@ spec:
               protocol: TCP
           env:
           volumeMounts:
-            
             - name: "database"
               mountPath: /opt/nifi-registry/nifi-registry-current/database
-            
-            
             - name: "flow-storage"
               mountPath: /opt/nifi-registry/nifi-registry-current/flow_storage
               subPath: flow_storage
-            
-          resources:
-            {}
+          resources: {}
           readinessProbe:
             tcpSocket:
               port: 18080
@@ -78,23 +70,20 @@ spec:
             successThreshold: 2
             failureThreshold: 3
       volumes:
-  
   volumeClaimTemplates:
-  - metadata:
-      name: database
-    spec:
-      accessModes:
-      - ReadWriteOnce
-      
-      resources:
-        requests:
-          storage: "1Gi"
-  - metadata:
-      name: flow-storage
-    spec:
-      accessModes:
-      - ReadWriteOnce
-      
-      resources:
-        requests:
-          storage: "1Gi"
+    - metadata:
+        name: database
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: "1Gi"
+    - metadata:
+        name: flow-storage
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: "1Gi"

@@ -1,14 +1,11 @@
 ---
-# Source: nifi/templates/configmap.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: nifi-config
   labels:
     app: "nifi"
-    chart: "nifi-0.7.9"
-    release: "nifi"
-    heritage: "Helm"
+# yamllint disable rule:line-length
 data:
   authorizers-empty.xml: |
     <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -171,7 +168,7 @@ data:
             <property name="User Group Provider 1"></property>
         </userGroupProvider>
         To enable the composite-user-group-provider remove 2 lines. This is 2 of 2. -->
-  
+
         <!--
             The CompositeConfigurableUserGroupProvider will provide support for retrieving users and groups from multiple sources.
             Additionally, a single configurable user group provider is required. Users from the configurable user group provider
@@ -191,7 +188,7 @@ data:
             <property name="User Group Provider 1"></property>
         </userGroupProvider>
         To enable the composite-configurable-user-group-provider remove 2 lines. This is 2 of 2. -->
-  
+
         <!--
             The FileAccessPolicyProvider will provide support for managing access policies which is backed by a file
             on the local file system.
@@ -313,7 +310,7 @@ data:
             <class>org.apache.nifi.authorization.FileUserGroupProvider</class>
             <property name="Users File">./auth-conf/users.xml</property>
             <property name="Legacy Authorized Users File"></property>
-            <property name="Initial User Identity 0">CN=nifi-0.nifi-headless.spark-operator.svc.cluster.local, OU=NIFI</property>
+            <property name="Initial User Identity 0">CN=nifi-0.nifi-headless.nifi.svc.cluster.local, OU=NIFI</property>
             <property name="Initial User Identity admin">admin-user</property>
         </userGroupProvider>
         <!--
@@ -386,7 +383,7 @@ data:
                 NOTE: Any identity mapping rules specified in nifi.properties are not applied in this implementation. This behavior
                 would need to be applied by the base implementation.
         -->
-  
+
         <!--
             The CompositeConfigurableUserGroupProvider will provide support for retrieving users and groups from multiple sources.
             Additionally, a single configurable user group provider is required. Users from the configurable user group provider
@@ -406,7 +403,7 @@ data:
             <property name="User Group Provider 1"></property>
         </userGroupProvider>
         To enable the composite-configurable-user-group-provider remove 2 lines. This is 2 of 2. -->
-  
+
         <!--
             The FileAccessPolicyProvider will provide support for managing access policies which is backed by a file
             on the local file system.
@@ -438,7 +435,7 @@ data:
             <property name="Authorizations File">./auth-conf/authorizations.xml</property>
             <property name="Initial Admin Identity">admin-user</property>
             <property name="Legacy Authorized Users File"></property>
-            <property name="Node Identity 0">CN=nifi-0.nifi-headless.spark-operator.svc.cluster.local, OU=NIFI</property>
+            <property name="Node Identity 0">CN=nifi-0.nifi-headless.nifi.svc.cluster.local, OU=NIFI</property>
             <property name="Node Identity"></property>
         </accessPolicyProvider>
          <!--
@@ -495,68 +492,68 @@ data:
     # See the License for the specific language governing permissions and
     # limitations under the License.
     #
-  
+
     # Java command to use when running NiFi
     java=java
-  
+
     # Username to use when running NiFi. This value will be ignored on Windows.
     run.as=
   
     # Configure where NiFi's lib and conf directories live
     lib.dir=./lib
     conf.dir=./conf
-  
+
     # How long to wait after telling NiFi to shutdown before explicitly killing the Process
     graceful.shutdown.seconds=20
-  
+
     # Disable JSR 199 so that we can use JSP's without running a JDK
     java.arg.1=-Dorg.apache.jasper.compiler.disablejsr199=true
-  
+
     # JVM memory settings
     java.arg.2=-Xms2g
     java.arg.3=-Xmx2g
-  
+
     # Enable Remote Debugging
     #java.arg.debug=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000
-  
+
     java.arg.4=-Djava.net.preferIPv4Stack=true
-  
+
     # allowRestrictedHeaders is required for Cluster/Node communications to work properly
     java.arg.5=-Dsun.net.http.allowRestrictedHeaders=true
     java.arg.6=-Djava.protocol.handler.pkgs=sun.net.www.protocol
-  
+
     # The G1GC is still considered experimental but has proven to be very advantageous in providing great
     # performance without significant "stop-the-world" delays.
     #java.arg.13=-XX:+UseG1GC
-  
+
     #Set headless mode by default
     java.arg.14=-Djava.awt.headless=true
-  
+
     # Master key in hexadecimal format for encrypted sensitive configuration values
     nifi.bootstrap.sensitive.key=
-  
+
     # Sets the provider of SecureRandom to /dev/urandom to prevent blocking on VMs
     java.arg.15=-Djava.security.egd=file:/dev/urandom
-  
+
     ###
     # Notification Services for notifying interested parties when NiFi is stopped, started, dies
     ###
-  
+
     # XML File that contains the definitions of the notification services
     notification.services.file=./conf/bootstrap-notification-services.xml
-  
+
     # In the case that we are unable to send a notification for an event, how many times should we retry?
     notification.max.attempts=5
-  
+
     # Comma-separated list of identifiers that are present in the notification.services.file; which services should be used to notify when NiFi is started?
     #nifi.start.notification.services=email-notification
-  
+
     # Comma-separated list of identifiers that are present in the notification.services.file; which services should be used to notify when NiFi is stopped?
     #nifi.stop.notification.services=email-notification
-  
+
     # Comma-separated list of identifiers that are present in the notification.services.file; which services should be used to notify when NiFi dies?
     #nifi.dead.notification.services=email-notification
-  
+
   
   flow.xml: |
     <?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -610,7 +607,7 @@ data:
     nifi.administrative.yield.duration=30 sec
     # If a component has no work to do (is "bored"), how long should we wait before checking again for work?
     nifi.bored.yield.duration=10 millis
-  
+
     nifi.authorizer.configuration.file=./conf/authorizers.xml
     nifi.login.identity.provider.configuration.file=./conf/login-identity-providers.xml
     nifi.templates.directory=../data/templates
@@ -621,7 +618,7 @@ data:
     nifi.nar.library.autoload.directory=./extensions
     nifi.nar.working.directory=./work/nar/
     nifi.documentation.working.directory=./work/docs/components
-  
+
     ####################
     # State Management #
     ####################
@@ -634,26 +631,26 @@ data:
     nifi.state.management.embedded.zookeeper.start=false
     # Properties file that provides the ZooKeeper properties to use if <nifi.state.management.embedded.zookeeper.start> is set to true
     nifi.state.management.embedded.zookeeper.properties=./conf/zookeeper.properties
-  
-  
+
+
     # H2 Settings
     nifi.database.directory=../data/database_repository
     nifi.h2.url.append=;LOCK_TIMEOUT=25000;WRITE_DELAY=0;AUTO_SERVER=FALSE
-  
+
     # FlowFile Repository
     nifi.flowfile.repository.implementation=org.apache.nifi.controller.repository.WriteAheadFlowFileRepository
     nifi.flowfile.repository.directory=../flowfile_repository
     nifi.flowfile.repository.partitions=256
     nifi.flowfile.repository.checkpoint.interval=2 mins
     nifi.flowfile.repository.always.sync=false
-  
+
     nifi.swap.manager.implementation=org.apache.nifi.controller.FileSystemSwapManager
     nifi.queue.swap.threshold=20000
     nifi.swap.in.period=5 sec
     nifi.swap.in.threads=1
     nifi.swap.out.period=5 sec
     nifi.swap.out.threads=4
-  
+
     # Content Repository
     nifi.content.repository.implementation=org.apache.nifi.controller.repository.FileSystemRepository
     nifi.content.claim.max.appendable.size=1 MB
@@ -664,7 +661,7 @@ data:
     nifi.content.repository.archive.enabled=true
     nifi.content.repository.always.sync=false
     nifi.content.viewer.url=/nifi-content-viewer/
-  
+
     # Provenance Repository Properties
     nifi.provenance.repository.implementation=org.apache.nifi.provenance.WriteAheadProvenanceRepository
     nifi.provenance.repository.debug.frequency=1_000_000
@@ -672,7 +669,7 @@ data:
     nifi.provenance.repository.encryption.key.provider.location=
     nifi.provenance.repository.encryption.key.id=
     nifi.provenance.repository.encryption.key=
-  
+
     # Persistent Provenance Repository Properties
     nifi.provenance.repository.directory.default=../provenance_repository
     nifi.provenance.repository.max.storage.time=10 days
@@ -695,15 +692,15 @@ data:
     # Indicates the maximum length that a FlowFile attribute can be when retrieving a Provenance Event from
     # the repository. If the length of any attribute exceeds this value, it will be truncated when the event is retrieved.
     nifi.provenance.repository.max.attribute.length=65536
-  
+
     # Volatile Provenance Respository Properties
     nifi.provenance.repository.buffer.size=100000
-  
+
     # Component Status Repository
     nifi.components.status.repository.implementation=org.apache.nifi.controller.status.history.VolatileComponentStatusRepository
     nifi.components.status.repository.buffer.size=1440
     nifi.components.status.snapshot.frequency=1 min
-  
+
     # Site to Site properties
     nifi.remote.input.host=
     nifi.remote.input.secure=false
@@ -711,14 +708,14 @@ data:
     nifi.remote.input.http.enabled=true
     nifi.remote.input.http.transaction.ttl=30 sec
     nifi.remote.contents.cache.expiration=30 secs
-  
+
     # web properties #
     nifi.web.war.directory=./lib
     nifi.web.proxy.host=
-        
+
     nifi.web.http.port=8080
     nifi.web.https.port=
-        
+
     nifi.web.http.host=
     nifi.web.http.network.interface.default=
     nifi.web.https.host=
@@ -726,15 +723,14 @@ data:
     nifi.web.jetty.working.directory=./work/jetty
     nifi.web.jetty.threads=200
     # nifi.web.proxy.context.path=
-  
+
     # security properties #
     nifi.sensitive.props.key=
     nifi.sensitive.props.key.protected=
     nifi.sensitive.props.algorithm=PBEWITHMD5AND256BITAES-CBC-OPENSSL
     nifi.sensitive.props.provider=BC
     nifi.sensitive.props.additional.keys=
-  
-    
+
     nifi.security.keystore=
     nifi.security.keystoreType=
     nifi.security.keystorePasswd=
@@ -744,32 +740,32 @@ data:
     nifi.security.truststorePasswd=
     nifi.security.needClientAuth=false
     nifi.security.user.authorizer=managed-authorizer
-    
-    
+
+
     nifi.security.user.login.identity.provider=
-    
+
     nifi.security.ocsp.responder.url=
     nifi.security.ocsp.responder.certificate=
-  
-        
+
+
     # OpenId Connect SSO Properties #
-    nifi.security.user.oidc.discovery.url=discoveryUrl
+    nifi.security.user.oidc.discovery.url=https://openshift.default.svc/.well-known/oauth-authorization-server
     nifi.security.user.oidc.connect.timeout=5 secs
     nifi.security.user.oidc.read.timeout=5 secs
-    nifi.security.user.oidc.client.id=clientId
-    nifi.security.user.oidc.client.secret=clientSecret
+    nifi.security.user.oidc.client.id=system:serviceaccount:nifi:nifi-sa
+    nifi.security.user.oidc.client.secret=tbd
     nifi.security.user.oidc.preferred.jwsalgorithm=
-    nifi.security.user.oidc.claim.identifying.user=email
+    nifi.security.user.oidc.claim.identifying.user=name
     nifi.security.user.oidc.additional.scopes=
-        
-  
-  
+
+
+
     # Apache Knox SSO Properties #
     nifi.security.user.knox.url=
     nifi.security.user.knox.publicKey=
     nifi.security.user.knox.cookieName=hadoop-jwt
     nifi.security.user.knox.audiences=
-  
+
     # Identity Mapping Properties #
     # These properties allow normalizing user identities such that identities coming from different identity providers
     # (certificates, LDAP, Kerberos) can be treated the same internally in NiFi. The following example demonstrates normalizing
@@ -779,11 +775,11 @@ data:
     # nifi.security.identity.mapping.value.dn=$1@$2
     # nifi.security.identity.mapping.pattern.kerb=^(.*?)/instance@(.*?)$
     # nifi.security.identity.mapping.value.kerb=$1@$2
-  
+
     # cluster common properties (all nodes must have same values) #
     nifi.cluster.protocol.heartbeat.interval=5 sec
     nifi.cluster.protocol.is.secure=false
-  
+
     # cluster node properties (only configure for cluster nodes) #
     nifi.cluster.is.node=true
     nifi.cluster.node.address=
@@ -797,13 +793,13 @@ data:
     nifi.cluster.firewall.file=
     nifi.cluster.flow.election.max.wait.time=1 mins
     nifi.cluster.flow.election.max.candidates=
-  
+
     # zookeeper properties, used for cluster management #
     nifi.zookeeper.connect.string=
     nifi.zookeeper.connect.timeout=3 secs
     nifi.zookeeper.session.timeout=3 secs
     nifi.zookeeper.root.node=/nifi
-  
+
     # Zookeeper properties for the authentication scheme used when creating acls on znodes used for cluster management
     # Values supported for nifi.zookeeper.auth.type are "default", which will apply world/anyone rights on znodes
     # and "sasl" which will give rights to the sasl/kerberos identity used to authenticate the nifi node
@@ -813,19 +809,19 @@ data:
     nifi.zookeeper.auth.type=
     nifi.zookeeper.kerberos.removeHostFromPrincipal=
     nifi.zookeeper.kerberos.removeRealmFromPrincipal=
-  
+
     # kerberos #
     nifi.kerberos.krb5.file=
-  
+
     # kerberos service principal #
     nifi.kerberos.service.principal=
     nifi.kerberos.service.keytab.location=
-  
+
     # kerberos spnego principal #
     nifi.kerberos.spnego.principal=
     nifi.kerberos.spnego.keytab.location=
     nifi.kerberos.spnego.authentication.expiration=12 hours
-  
+
     # external properties files for variable registry
     # supports a comma delimited list of file locations
     nifi.variable.registry.properties=
@@ -871,14 +867,14 @@ data:
     #
     #
     #
-  
+
     initLimit=10
     autopurge.purgeInterval=24
     syncLimit=5
     tickTime=2000
     dataDir=./state/zookeeper
     autopurge.snapRetainCount=30
-  
+
     #
     # Specifies the servers that are part of this zookeeper ensemble. For
     # every NiFi instance running an embedded zookeeper, there needs to be
@@ -892,5 +888,5 @@ data:
     # in the dataDir of each node running an embedded zookeeper. See the
     # administration guide for more details.
     #
-  
+
     server.1=

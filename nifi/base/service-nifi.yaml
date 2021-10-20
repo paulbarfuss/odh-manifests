@@ -1,14 +1,10 @@
 ---
-# Source: nifi/templates/service.yaml
 apiVersion: v1
 kind: Service
 metadata:
   name: nifi
   labels:
     app: "nifi"
-    chart: "nifi-0.7.9"
-    release: "nifi"
-    heritage: "Helm"
 spec:
   type: ClusterIP
   ports:

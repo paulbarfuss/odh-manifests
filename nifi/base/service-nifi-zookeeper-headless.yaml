@@ -1,27 +1,20 @@
 ---
-# Source: nifi/charts/zookeeper/templates/svc-headless.yaml
 apiVersion: v1
 kind: Service
 metadata:
   name: nifi-zookeeper-headless
-  namespace: spark-operator
   labels:
     app.kubernetes.io/name: zookeeper
-    helm.sh/chart: zookeeper-5.23.0
     app.kubernetes.io/instance: nifi
-    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: zookeeper
 spec:
   type: ClusterIP
   clusterIP: None
   publishNotReadyAddresses: true
   ports:
-    
     - name: tcp-client
       port: 2181
       targetPort: client
-    
-    
     - name: follower
       port: 2888
       targetPort: follower

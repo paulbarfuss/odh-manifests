@@ -1,20 +1,16 @@
 ---
-# Source: nifi/templates/service.yaml
 apiVersion: v1
 kind: Service
 metadata:
   name: nifi-metrics
   labels:
     app: "nifi"
-    chart: "nifi-0.7.9"
-    release: "nifi"
-    heritage: "Helm"
 spec:
   ports:
-  - name: metrics
-    port: 9092
-    protocol: TCP
-    targetPort: metrics
+    - name: metrics
+      port: 9092
+      protocol: TCP
+      targetPort: metrics
   selector:
     app: nifi
     release: nifi

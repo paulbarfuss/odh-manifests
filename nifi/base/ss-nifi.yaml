@@ -1,14 +1,10 @@
 ---
-# Source: nifi/templates/statefulset.yaml
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: nifi
   labels:
     app: "nifi"
-    chart: "nifi-0.7.9"
-    release: "nifi"
-    heritage: "Helm"
 spec:
   podManagementPolicy: Parallel
   serviceName: nifi-headless
@@ -23,9 +19,6 @@ spec:
         security.alpha.kubernetes.io/sysctls: net.ipv4.ip_local_port_range=10000 65000
       labels:
         app: "nifi"
-        chart: "nifi-0.7.9"
-        release: "nifi"
-        heritage: "Helm"
     spec:
       serviceAccountName: nifi-sa
       affinity:
@@ -57,6 +50,7 @@ spec:
             echo "waiting for zookeeper..."
             sleep 2
           done
+# yamllint disable rule:line-length
       containers:
       - name: server
         imagePullPolicy: "IfNotPresent"
@@ -94,7 +88,7 @@ spec:
           prop_replace nifi.cluster.node.address ${FQDN}
           prop_replace nifi.zookeeper.connect.string ${NIFI_ZOOKEEPER_CONNECT_STRING}
           prop_replace nifi.web.http.host ${FQDN}
-          prop_replace nifi.web.proxy.host nifi.spark-operator.svc
+          prop_replace nifi.web.proxy.host nifi.nifi.svc
           prop_replace nifi.web.http.network.interface.default "eth0" nifi.properties
           prop_replace nifi.web.http.network.interface.lo "lo" nifi.properties
 
@@ -151,11 +145,10 @@ spec:
           echo NiFi running with PID ${nifi_pid}.
           wait ${nifi_pid}
           
-          /opt/nifi/nifi-toolkit-current/bin/tls-toolkit.sh standalone -n 'nifi-nifi-0.nifi-nifi-headless.spark-operator.svc.cluster.local' -C 'cn=admin,dc=example,dc=be' -o '/opt/nifi/nifi-current/conf/' -P env:PASS  -S env:PASS  --nifiPropertiesFile /opt/nifi/nifi-current/conf/nifi.properties
+          /opt/nifi/nifi-toolkit-current/bin/tls-toolkit.sh standalone -n 'nifi-nifi-0.nifi-nifi-headless.nifi.svc.cluster.local' -C 'cn=admin,dc=example,dc=be' -o '/opt/nifi/nifi-current/conf/' -P env:PASS  -S env:PASS  --nifiPropertiesFile /opt/nifi/nifi-current/conf/nifi.properties
           exec bin/nifi.sh run
           
-        resources:
-          {}
+        resources: {}
         ports:
         - containerPort: 9092
           name: metrics
@@ -339,7 +332,7 @@ spec:
       spec:
         accessModes:
           - "ReadWriteOnce"
-        storageClassName: "storageClass"
+        storageClassName: $(storage_class)
         resources:
           requests:
             storage: 1Gi
@@ -348,7 +341,7 @@ spec:
       spec:
         accessModes:
           - "ReadWriteOnce"
-        storageClassName: "storageClass"
+        storageClassName: $(storage_class)
         resources:
           requests:
             storage: 10Gi
@@ -357,7 +350,7 @@ spec:
       spec:
         accessModes:
           - "ReadWriteOnce"
-        storageClassName: "storageClass"
+        storageClassName: $(storage_class)
         resources:
           requests:
             storage: 10Gi
@@ -366,7 +359,7 @@ spec:
       spec:
         accessModes:
           - "ReadWriteOnce"
-        storageClassName: "storageClass"
+        storageClassName: $(storage_class)
         resources:
           requests:
             storage: 10Gi
@@ -375,7 +368,7 @@ spec:
       spec:
         accessModes:
           - "ReadWriteOnce"
-        storageClassName: "storageClass"
+        storageClassName: $(storage_class)
         resources:
           requests:
             storage: 5Gi
@@ -384,7 +377,7 @@ spec:
       spec:
         accessModes:
           - "ReadWriteOnce"
-        storageClassName: "storageClass"
+        storageClassName: $(storage_class)
         resources:
           requests:
             storage: 100Mi

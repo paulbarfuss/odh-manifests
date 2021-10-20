@@ -1,16 +1,11 @@
-
 ---
-# Source: nifi/charts/zookeeper/templates/statefulset.yaml
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: nifi-zookeeper
-  namespace: spark-operator
   labels:
     app.kubernetes.io/name: zookeeper
-    helm.sh/chart: zookeeper-5.23.0
     app.kubernetes.io/instance: nifi
-    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: zookeeper
     role: zookeeper
 spec:
@@ -29,12 +24,9 @@ spec:
       name: nifi-zookeeper
       labels:
         app.kubernetes.io/name: zookeeper
-        helm.sh/chart: zookeeper-5.23.0
         app.kubernetes.io/instance: nifi
-        app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/component: zookeeper
     spec:
-      
       serviceAccountName: default
       securityContext:
         fsGroup: 1001
@@ -44,6 +36,7 @@ spec:
           imagePullPolicy: "IfNotPresent"
           securityContext:
             runAsUser: 1001
+          # yamllint disable rule:line-length
           command:
             - bash
             - -ec
@@ -86,7 +79,7 @@ spec:
             - name: ZOO_MAX_SESSION_TIMEOUT
               value: "40000"
             - name: ZOO_SERVERS
-              value: nifi-zookeeper-0.nifi-zookeeper-headless.spark-operator.svc.cluster.local:2888:3888 nifi-zookeeper-1.nifi-zookeeper-headless.spark-operator.svc.cluster.local:2888:3888 nifi-zookeeper-2.nifi-zookeeper-headless.spark-operator.svc.cluster.local:2888:3888 
+              value: nifi-zookeeper-0.nifi-zookeeper-headless.nifi.svc.cluster.local:2888:3888 nifi-zookeeper-1.nifi-zookeeper-headless.nifi.svc.cluster.local:2888:3888 nifi-zookeeper-2.nifi-zookeeper-headless.nifi.svc.cluster.local:2888:3888
             - name: ZOO_ENABLE_AUTH
               value: "no"
             - name: ZOO_HEAP_SIZE
@@ -101,11 +94,8 @@ spec:
                   apiVersion: v1
                   fieldPath: metadata.name
           ports:
-            
             - name: client
               containerPort: 2181
-            
-            
             - name: follower
               containerPort: 2888
             - name: election
