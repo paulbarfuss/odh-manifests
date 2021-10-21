@@ -32,6 +32,7 @@ supplementalGroups:
   type: RunAsAny
 users:
   - system:serviceaccount:$(namespace):nifi-sa
+  - system:serviceaccount:$(namespace):nifi-registry
 volumes:
   - configMap
   - downwardAPI

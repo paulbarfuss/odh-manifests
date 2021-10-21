@@ -27,7 +27,7 @@ spec:
         app.kubernetes.io/instance: nifi
         app.kubernetes.io/component: zookeeper
     spec:
-      serviceAccountName: default
+      serviceAccountName: nifi-sa
       securityContext:
         fsGroup: 1001
       containers:
@@ -127,6 +127,7 @@ spec:
       spec:
         accessModes:
           - "ReadWriteOnce"
+        storageClassName: $(storage_class)
         resources:
           requests:
             storage: "8Gi"

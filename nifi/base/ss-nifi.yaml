@@ -12,7 +12,6 @@ spec:
   selector:
     matchLabels:
       app: nifi
-      release: nifi
   template:
     metadata:
       annotations:
@@ -92,6 +91,9 @@ spec:
           prop_replace nifi.web.http.network.interface.default "eth0" nifi.properties
           prop_replace nifi.web.http.network.interface.lo "lo" nifi.properties
 
+          if [ -n "${NIFI_SENSITIVE_PROPS_KEY}" ]; then
+              prop_replace 'nifi.sensitive.props.key' "${NIFI_SENSITIVE_PROPS_KEY}"
+          fi
 
           exec bin/nifi.sh run & nifi_pid="$!"
 
@@ -162,6 +164,8 @@ spec:
         env:
         - name: NIFI_ZOOKEEPER_CONNECT_STRING
           value: nifi-zookeeper:2181
+        - name: NIFI_SENSITIVE_PROPS_KEY
+          value: "1234567890123456789"
         readinessProbe:
           initialDelaySeconds: 60
           periodSeconds: 20

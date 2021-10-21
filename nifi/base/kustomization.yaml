@@ -58,10 +58,10 @@ images:
     newTag: 3.13.6
   - name: nifi
     newName: apache/nifi
-    newTag: 1.13.2
+    newTag: 1.14.0
   - name: nifi-registry
     newName: apache/nifi-registry
-    newTag: 1.13.2
+    newTag: 1.14.0
   - name: zookeeper
     newName: bitnami/zookeeper
     newTag: 3.7.0-debian-10-r179
