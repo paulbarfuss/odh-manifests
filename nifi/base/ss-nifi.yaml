@@ -58,6 +58,8 @@ spec:
         - bash
         - -ce
         - |
+          scripts_dir='/opt/nifi/scripts'
+
           prop_replace () {
             target_file=${NIFI_HOME}/conf/${3:-nifi.properties}
             echo "updating ${1} in ${target_file}"
@@ -75,8 +77,10 @@ spec:
 
           if [[ $(grep $(hostname) conf/authorizers.temp) ]]; then
             cat "${NIFI_HOME}/conf/authorizers.temp" > "${NIFI_HOME}/conf/authorizers.xml"
+            echo "Authorizers OK!"
           else
             cat "${NIFI_HOME}/conf/authorizers.empty" > "${NIFI_HOME}/conf/authorizers.xml"
+            echo "Empty Authorizers"
           fi
 
           if ! test -f /opt/nifi/data/flow.xml.gz && test -f /opt/nifi/data/flow.xml; then
@@ -94,6 +98,12 @@ spec:
           if [ -n "${NIFI_SENSITIVE_PROPS_KEY}" ]; then
               prop_replace 'nifi.sensitive.props.key' "${NIFI_SENSITIVE_PROPS_KEY}"
           fi
+
+          if [ -n "${SINGLE_USER_CREDENTIALS_USERNAME}" ] && [ -n "${SINGLE_USER_CREDENTIALS_PASSWORD}" ]; then
+              ${NIFI_HOME}/bin/nifi.sh set-single-user-credentials "${SINGLE_USER_CREDENTIALS_USERNAME}" "${SINGLE_USER_CREDENTIALS_PASSWORD}"
+          fi
+
+          . "${scripts_dir}/update_cluster_state_management.sh"
 
           exec bin/nifi.sh run & nifi_pid="$!"
 
