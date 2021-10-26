@@ -551,7 +551,7 @@ data:
     java=java
 
     # Username to use when running NiFi. This value will be ignored on Windows.
-    run.as=
+    run.as=nifi
   
     # Configure where NiFi's lib and conf directories live
     lib.dir=./lib
@@ -631,6 +631,18 @@ data:
         <controllerServices/>
         <reportingTasks/>
     </flowController>
+  login-identity-providers.empty: |
+    <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <loginIdentityProviders>
+    <!-- To enable the kerberos-provider remove 2 lines. This is 1 of 2.
+    <provider>
+        <identifier>kerberos-provider</identifier>
+        <class>org.apache.nifi.kerberos.KerberosProvider</class>
+        <property name="Default Realm">NIFI.APACHE.ORG</property>
+        <property name="Authentication Expiration">12 hours</property>
+    </provider>
+    To enable the kerberos-provider remove 2 lines. This is 2 of 2. -->
+    </loginIdentityProviders>
   login-identity-providers.xml: |
     <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <loginIdentityProviders>
@@ -833,7 +845,7 @@ data:
     nifi.security.user.authorizer=managed-authorizer
 
 
-    nifi.security.user.login.identity.provider=single-user-provider
+    nifi.security.user.login.identity.provider=
 
     nifi.security.ocsp.responder.url=
     nifi.security.ocsp.responder.certificate=
