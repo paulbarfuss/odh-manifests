@@ -474,7 +474,61 @@ data:
                 so the values should be the unmapped identities (i.e. full DN from a certificate).
         -->
     </authorizers>
-  bootstrap-notification-services.xml: "<?xml version=\"1.0\"?>\n<!--\n  Licensed to the Apache Software Foundation (ASF) under one or more\n  contributor license agreements.  See the NOTICE file distributed with\n  this work for additional information regarding copyright ownership.\n  The ASF licenses this file to You under the Apache License, Version 2.0\n  (the \"License\"); you may not use this file except in compliance with\n  the License.  You may obtain a copy of the License at\n      http://www.apache.org/licenses/LICENSE-2.0\n  Unless required by applicable law or agreed to in writing, software\n  distributed under the License is distributed on an \"AS IS\" BASIS,\n  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n  See the License for the specific language governing permissions and\n  limitations under the License.\n-->\n<services>\n    <!-- This file is used to define how interested parties are notified when events in NiFi's lifecycle occur. -->\n    <!-- The format of this file is:\n        <services>\n            <service>\n                <id>service-identifier</id>\n                <class>org.apache.nifi.notifications.DesiredNotificationService</class>\n                <property name=\"property name\">property value</property>\n                <property name=\"another property\">another property value</property>\n            </service>\n        </services>\n        \n        This file can contain 0 to many different service definitions.\n        The id can then be referenced from the bootstrap.conf file in order to configure the notification service\n        to be used when particular lifecycle events occur.\n    -->\n    \n<!--\n     <service>\n        <id>email-notification</id>\n        <class>org.apache.nifi.bootstrap.notification.email.EmailNotificationService</class>\n        <property name=\"SMTP Hostname\"></property>\n        <property name=\"SMTP Port\"></property>\n        <property name=\"SMTP Username\"></property>\n        <property name=\"SMTP Password\"></property>\n        <property name=\"SMTP TLS\"></property>\n        <property name=\"From\"></property>\n        <property name=\"To\"></property>\n     </service>\n-->\n<!--\n     <service>\n        <id>http-notification</id>\n        <class>org.apache.nifi.bootstrap.notification.http.HttpNotificationService</class>\n        <property name=\"URL\"></property>\n     </service>\n-->\n</services>\n"
+  bootstrap-notification-services.xml: |
+    <?xml version="1.0"?>
+    <!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+        http://www.apache.org/licenses/LICENSE-2.0
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -->
+    <services>
+        <!-- This file is used to define how interested parties are notified when events in NiFi's lifecycle occur. -->
+        <!-- The format of this file is:
+            <services>
+                <service>
+                    <id>service-identifier</id>
+                    <class>org.apache.nifi.notifications.DesiredNotificationService</class>
+                    <property name="property name">property value</property>
+                    <property name="another property">another property value</property>
+                </service>
+            </services>
+            
+            This file can contain 0 to many different service definitions.
+            The id can then be referenced from the bootstrap.conf file in order to configure the notification service
+            to be used when particular lifecycle events occur.
+        -->
+        
+    <!--
+        <service>
+            <id>email-notification</id>
+            <class>org.apache.nifi.bootstrap.notification.email.EmailNotificationService</class>
+            <property name="SMTP Hostname"></property>
+            <property name="SMTP Port"></property>
+            <property name="SMTP Username"></property>
+            <property name="SMTP Password"></property>
+            <property name="SMTP TLS"></property>
+            <property name="From"></property>
+            <property name="To"></property>
+        </service>
+    -->
+    <!--
+        <service>
+            <id>http-notification</id>
+            <class>org.apache.nifi.bootstrap.notification.http.HttpNotificationService</class>
+            <property name="URL"></property>
+        </service>
+    -->
+    </services>
+
   bootstrap.conf: |+
     #
     # Licensed to the Apache Software Foundation (ASF) under one or more
@@ -624,6 +678,8 @@ data:
     nifi.administrative.yield.duration=30 sec
     # If a component has no work to do (is "bored"), how long should we wait before checking again for work?
     nifi.bored.yield.duration=10 millis
+    nifi.queue.backpressure.count=10000
+    nifi.queue.backpressure.size=1 GB
 
     nifi.authorizer.configuration.file=./conf/authorizers.xml
     nifi.login.identity.provider.configuration.file=./conf/login-identity-providers.xml
@@ -656,10 +712,17 @@ data:
 
     # FlowFile Repository
     nifi.flowfile.repository.implementation=org.apache.nifi.controller.repository.WriteAheadFlowFileRepository
+    nifi.flowfile.repository.wal.implementation=org.apache.nifi.wali.SequentialAccessWriteAheadLog
     nifi.flowfile.repository.directory=../flowfile_repository
     nifi.flowfile.repository.partitions=256
     nifi.flowfile.repository.checkpoint.interval=2 mins
     nifi.flowfile.repository.always.sync=false
+    nifi.flowfile.repository.encryption.key.provider.implementation=
+    nifi.flowfile.repository.encryption.key.provider.location=
+    nifi.flowfile.repository.encryption.key.provider.password=
+    nifi.flowfile.repository.encryption.key.id=
+    nifi.flowfile.repository.encryption.key=
+    nifi.flowfile.repository.retain.orphaned.flowfiles=true
 
     nifi.swap.manager.implementation=org.apache.nifi.controller.FileSystemSwapManager
     nifi.queue.swap.threshold=20000
@@ -678,6 +741,11 @@ data:
     nifi.content.repository.archive.enabled=true
     nifi.content.repository.always.sync=false
     nifi.content.viewer.url=/nifi-content-viewer/
+    nifi.content.repository.encryption.key.provider.implementation=
+    nifi.content.repository.encryption.key.provider.location=
+    nifi.content.repository.encryption.key.provider.password=
+    nifi.content.repository.encryption.key.id=
+    nifi.content.repository.encryption.key=
 
     # Provenance Repository Properties
     nifi.provenance.repository.implementation=org.apache.nifi.provenance.WriteAheadProvenanceRepository
@@ -727,6 +795,12 @@ data:
     nifi.remote.contents.cache.expiration=30 secs
 
     # web properties #
+    #############################################
+
+    # For security, NiFi will present the UI on 127.0.0.1 and only be accessible through this loopback interface.
+    # Be aware that changing these properties may affect how your instance can be accessed without any restriction.
+    # We recommend configuring HTTPS instead. The administrators guide provides instructions on how to do this.
+
     nifi.web.war.directory=./lib
     nifi.web.proxy.host=
 
