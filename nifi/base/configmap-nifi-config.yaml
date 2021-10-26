@@ -650,6 +650,7 @@ data:
     <provider>
         <identifier>kerberos-provider</identifier>
         <class>org.apache.nifi.kerberos.KerberosProvider</class>
+        <property name="Node Identity 0">CN=nifi-0.nifi-headless.nifi.svc.cluster.local, OU=NIFI</property>
         <property name="Default Realm">NIFI.APACHE.ORG</property>
         <property name="Authentication Expiration">12 hours</property>
     </provider>
@@ -657,6 +658,7 @@ data:
     <provider>
         <identifier>single-user-provider</identifier>
         <class>org.apache.nifi.authentication.single.user.SingleUserLoginIdentityProvider</class>
+        <property name="Node Identity 0">CN=nifi-0.nifi-headless.nifi.svc.cluster.local, OU=NIFI</property>
         <property name="Username"/>
         <property name="Password"/>
     </provider>
@@ -845,7 +847,7 @@ data:
     nifi.security.user.authorizer=managed-authorizer
 
 
-    nifi.security.user.login.identity.provider=
+    nifi.security.user.login.identity.provider=single-user-provider
 
     nifi.security.ocsp.responder.url=
     nifi.security.ocsp.responder.certificate=
