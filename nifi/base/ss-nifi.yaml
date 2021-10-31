@@ -49,6 +49,73 @@ spec:
             echo "waiting for zookeeper..."
             sleep 2
           done
+      - name: java-certificates
+        imagePullPolicy: "IfNotPresent"
+        image: "apache/nifi:1.14.0"
+        command:
+        - bash
+        - -c
+        - |
+          # Add main Kubernetes API certificate to default java certificates
+          # Copy source security folder and make cacerts readable
+          cd /tmp/security-data
+          cp -R /usr/local/openjdk-8/lib/security/* . && chmod 644 cacerts
+          # get the SSL certificate
+          openssl s_client -connect openshift.default.svc:443 </dev/null \
+              | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > openshift.default.svc.cert
+          # import certificate
+          keytool -importcert -noprompt -trustcacerts \
+              -alias openshift.default.svc -file openshift.default.svc.cert \
+              -keystore cacerts -storepass changeit
+        volumeMounts:
+          - name: "security-data"
+            mountPath: /tmp/security-data
+      - name: cert-request
+        imagePullPolicy: "IfNotPresent"
+        image: "apache/nifi-toolkit:1.12.1"
+        command:
+        - bash
+        - -c
+        - |
+          CA_ADDRESS="nifi-ca:9090"
+          until echo "" | timeout -t 2 openssl s_client -connect "${CA_ADDRESS}"; do
+            # Checking if ca server using nifi-toolkit is up
+            echo "Waiting for CA to be available at ${CA_ADDRESS}"
+            sleep 2
+          done;
+          cd /data/config-data
+          rm -rf certs
+          mkdir certs
+          cd certs
+
+          # Generate certificate for server with webProxyHost or service name as alternate names to access nifi web ui
+          ${NIFI_TOOLKIT_HOME}/bin/tls-toolkit.sh client \
+            -c "nifi-ca" \
+            -t sixteenCharacters \
+            --subjectAlternativeNames nifi.nifi.svc \
+            -D "CN=$(hostname -f), OU=NIFI" \
+            -p 9090
+
+          # Generate client certificate for browser with webProxyHost or service name as alternate names to access nifi web ui
+          mkdir -p /data/config-data/certs/admin
+          cd /data/config-data/certs/admin
+
+          ${NIFI_TOOLKIT_HOME}/bin/tls-toolkit.sh client \
+            -c "nifi-ca" \
+            -t sixteenCharacters \
+            --subjectAlternativeNames nifi.nifi.svc \
+            -p 9090 \
+            -D "CN=admin, OU=NIFI" \
+            -T PKCS12
+
+          export PASS=$(jq -r .keyStorePassword config.json)
+
+          openssl pkcs12 -in "keystore.pkcs12" -out "key.pem" -nocerts -nodes -password "env:PASS"
+          openssl pkcs12 -in "keystore.pkcs12" -out "crt.pem" -clcerts -nokeys -password "env:PASS"
+          openssl pkcs12 -in "keystore.pkcs12" -out "keystore.jks" -clcerts -nokeys -password "env:PASS"
+        volumeMounts:
+          - name: "config-data"
+            mountPath: /data/config-data
 # yamllint disable rule:line-length
       containers:
       - name: server
@@ -95,6 +162,15 @@ spec:
           prop_replace nifi.cluster.node.address ${FQDN}
           prop_replace nifi.zookeeper.connect.string ${NIFI_ZOOKEEPER_CONNECT_STRING}
           prop_replace nifi.web.http.host ${FQDN}
+          # Update nifi.properties for security properties
+          prop_replace nifi.web.https.host ${FQDN}
+          prop_replace nifi.security.keystoreType jks
+          prop_replace nifi.security.keystore   ${NIFI_HOME}/config-data/certs/keystore.jks
+          prop_replace nifi.security.keystorePasswd     $(jq -r .keyStorePassword ${NIFI_HOME}/config-data/certs/config.json)
+          prop_replace nifi.security.keyPasswd          $(jq -r .keyPassword ${NIFI_HOME}/config-data/certs/config.json)
+          prop_replace nifi.security.truststoreType jks
+          prop_replace nifi.security.truststore   ${NIFI_HOME}/config-data/certs/truststore.jks
+          prop_replace nifi.security.truststorePasswd   $(jq -r .trustStorePassword ${NIFI_HOME}/config-data/certs/config.json)
           prop_replace nifi.web.proxy.host nifi.nifi.svc
           prop_replace nifi.web.http.network.interface.default "eth0" nifi.properties
           prop_replace nifi.web.http.network.interface.lo "lo" nifi.properties
@@ -114,7 +190,15 @@ spec:
           function offloadNode() {
               FQDN=$(hostname -f)
               echo "disconnecting node '$FQDN'"
-              baseUrl=http://${FQDN}:8080
+              baseUrl=https://${FQDN}:
+
+              keystore=${NIFI_HOME}/config-data/certs/keystore.jks
+              keystorePasswd=$(jq -r .keyStorePassword ${NIFI_HOME}/config-data/certs/config.json)
+              keyPasswd=$(jq -r .keyPassword ${NIFI_HOME}/config-data/certs/config.json)
+              truststore=${NIFI_HOME}/config-data/certs/truststore.jks
+              truststorePasswd=$(jq -r .trustStorePassword ${NIFI_HOME}/config-data/certs/config.json)
+
+              secureArgs=" --truststore ${truststore} --truststoreType JKS --truststorePasswd ${truststorePasswd} --keystore ${keystore} --keystoreType JKS --keystorePasswd ${keystorePasswd} --proxiedEntity "admin-user""
 
               echo baseUrl ${baseUrl}
               echo "gracefully disconnecting node '$FQDN' from cluster"
@@ -125,7 +209,7 @@ spec:
               echo ""
               echo "get a connected node"
               connectedNode=$(jq -r 'first(.cluster.nodes|=sort_by(.address)| .cluster.nodes[] | select(.status=="CONNECTED")) | .address' nodes.json)
-              baseUrl=http://${connectedNode}:8080
+              baseUrl=https://${connectedNode}:
               echo baseUrl ${baseUrl}
               echo ""
               echo "wait until node has state 'DISCONNECTED'"
@@ -218,6 +302,10 @@ spec:
             mountPath: /opt/nifi/data
           - name: "auth-conf"
             mountPath: /opt/nifi/nifi-current/auth-conf/
+          - name: "security-data"
+            mountPath: /usr/local/openjdk-8/lib/security
+          - name: "config-data"
+            mountPath: /opt/nifi/nifi-current/config-data
           - name: "flowfile-repository"
             mountPath: /opt/nifi/flowfile_repository
           - name: "content-repository"
@@ -360,6 +448,22 @@ spec:
             - key: "flow.xml"
               path: "flow.xml"
   volumeClaimTemplates:
+    - metadata:
+        name: "security-data"
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: $(storage_class)
+        resources:
+          requests:
+            storage: 1Mi
+    - metadata:
+        name: "config-data"
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: $(storage_class)
+        resources:
+          requests:
+            storage: 100Mi
     - metadata:
         name: data
       spec:

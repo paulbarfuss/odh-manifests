@@ -854,13 +854,13 @@ data:
 
 
     # OpenId Connect SSO Properties #
-    nifi.security.user.oidc.discovery.url=
+    nifi.security.user.oidc.discovery.url=https://openshift.default.svc/.well-known/openid-configuration
     nifi.security.user.oidc.connect.timeout=5 secs
     nifi.security.user.oidc.read.timeout=5 secs
-    nifi.security.user.oidc.client.id=
-    nifi.security.user.oidc.client.secret=
+    nifi.security.user.oidc.client.id=system:serviceaccount:nifi:nifi-sa
+    nifi.security.user.oidc.client.secret=tbd
     nifi.security.user.oidc.preferred.jwsalgorithm=
-    nifi.security.user.oidc.claim.identifying.user=
+    nifi.security.user.oidc.claim.identifying.user=name
     nifi.security.user.oidc.additional.scopes=
 
 
