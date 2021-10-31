@@ -818,7 +818,7 @@ data:
     nifi.web.war.directory=./lib
     nifi.web.proxy.host=
 
-    nifi.web.http.port=8080
+    nifi.web.http.port=
     nifi.web.https.port=
 
     nifi.web.http.host=
@@ -847,7 +847,7 @@ data:
     nifi.security.user.authorizer=managed-authorizer
 
 
-    nifi.security.user.login.identity.provider=single-user-provider
+    nifi.security.user.login.identity.provider=
 
     nifi.security.ocsp.responder.url=
     nifi.security.ocsp.responder.certificate=
@@ -858,7 +858,7 @@ data:
     nifi.security.user.oidc.connect.timeout=5 secs
     nifi.security.user.oidc.read.timeout=5 secs
     nifi.security.user.oidc.client.id=system:serviceaccount:nifi:nifi-sa
-    nifi.security.user.oidc.client.secret=tbd
+    nifi.security.user.oidc.client.secret=
     nifi.security.user.oidc.preferred.jwsalgorithm=
     nifi.security.user.oidc.claim.identifying.user=name
     nifi.security.user.oidc.additional.scopes=

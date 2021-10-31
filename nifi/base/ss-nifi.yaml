@@ -183,6 +183,9 @@ spec:
               ${NIFI_HOME}/bin/nifi.sh set-single-user-credentials "${SINGLE_USER_CREDENTIALS_USERNAME}" "${SINGLE_USER_CREDENTIALS_PASSWORD}"
           fi
 
+          # Get SA token for OIDC configuration
+          prop_replace nifi.security.user.oidc.client.secret $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+
           . "${scripts_dir}/update_cluster_state_management.sh"
 
           exec bin/nifi.sh run & nifi_pid="$!"

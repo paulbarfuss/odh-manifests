@@ -6,12 +6,16 @@ resources:
   - poddisruptionbudget.yaml
   - serviceaccount-registry.yaml
   - serviceaccount-nifi.yaml
+  - serviceaccount-nifi-ca.yaml
+  - pvc-nifi-ca.yaml
   - scc.yaml
   - configmap-nifi-config.yaml
+  - deployment-nifi-ca.yaml
   - service-registry.yaml
   - service-nifi-zookeeper-headless.yaml
   - service-nifi-zookeeper.yaml
   - service-nifi-headless.yaml
+  - service-nifi-ca.yaml
   - service-nifi.yaml
   - service-nifi-metrics.yaml
   - ss-nifi-registry.yaml
