@@ -33,6 +33,7 @@ supplementalGroups:
 users:
   - system:serviceaccount:$(namespace):nifi-sa
   - system:serviceaccount:$(namespace):nifi-registry
+  - system:serviceaccount:$(namespace):nifi-ca-sa
 volumes:
   - configMap
   - downwardAPI

@@ -8,7 +8,7 @@ metadata:
 spec:
   podManagementPolicy: Parallel
   serviceName: nifi-headless
-  replicas: 1
+  replicas: 0
   selector:
     matchLabels:
       app: nifi
@@ -171,7 +171,6 @@ spec:
           prop_replace nifi.security.truststoreType jks
           prop_replace nifi.security.truststore   ${NIFI_HOME}/config-data/certs/truststore.jks
           prop_replace nifi.security.truststorePasswd   $(jq -r .trustStorePassword ${NIFI_HOME}/config-data/certs/config.json)
-          prop_replace nifi.web.proxy.host nifi.nifi.svc
           prop_replace nifi.web.http.network.interface.default "eth0" nifi.properties
           prop_replace nifi.web.http.network.interface.lo "lo" nifi.properties
 
@@ -182,11 +181,6 @@ spec:
           if [ -n "${SINGLE_USER_CREDENTIALS_USERNAME}" ] && [ -n "${SINGLE_USER_CREDENTIALS_PASSWORD}" ]; then
               ${NIFI_HOME}/bin/nifi.sh set-single-user-credentials "${SINGLE_USER_CREDENTIALS_USERNAME}" "${SINGLE_USER_CREDENTIALS_PASSWORD}"
           fi
-
-          # Get SA token for OIDC configuration
-          prop_replace nifi.security.user.oidc.client.secret $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
-
-          . "${scripts_dir}/update_cluster_state_management.sh"
 
           exec bin/nifi.sh run & nifi_pid="$!"
 
@@ -262,8 +256,8 @@ spec:
         - containerPort: 9092
           name: metrics
           protocol: TCP
-        - containerPort: 8080
-          name: http
+        - containerPort: 9443
+          name: https
           protocol: TCP
         - containerPort: 6007
           name: cluster
@@ -277,7 +271,7 @@ spec:
           initialDelaySeconds: 60
           periodSeconds: 20
           tcpSocket:
-            port: 8080
+            port: 9443
 #           exec:
 #             command:
 #             - bash
