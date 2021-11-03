@@ -178,10 +178,6 @@ spec:
               prop_replace 'nifi.sensitive.props.key' "${NIFI_SENSITIVE_PROPS_KEY}"
           fi
 
-          if [ -n "${SINGLE_USER_CREDENTIALS_USERNAME}" ] && [ -n "${SINGLE_USER_CREDENTIALS_PASSWORD}" ]; then
-              ${NIFI_HOME}/bin/nifi.sh set-single-user-credentials "${SINGLE_USER_CREDENTIALS_USERNAME}" "${SINGLE_USER_CREDENTIALS_PASSWORD}"
-          fi
-
           exec bin/nifi.sh run & nifi_pid="$!"
 
           function offloadNode() {
@@ -293,7 +289,7 @@ spec:
           initialDelaySeconds: 90
           periodSeconds: 60
           tcpSocket:
-            port: 8080
+            port: 9443
         volumeMounts:
           - name: "data"
             mountPath: /opt/nifi/data
