@@ -125,7 +125,6 @@ data:
             <property name="Initial Admin Identity">uid=gmoutier,cn=users,cn=accounts,dc=rht-labs,dc=com</property>
             <property name="Legacy Authorized Users File"></property>
             <property name="Node Identity 0">CN=nifi-0.nifi-headless.nifi.svc.cluster.local, OU=NIFI</property>
-            <property name="Node Identity"></property>
         </accessPolicyProvider>
 
         <authorizer>

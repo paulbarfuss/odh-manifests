@@ -49,27 +49,6 @@ spec:
             echo "waiting for zookeeper..."
             sleep 2
           done
-      - name: java-certificates
-        imagePullPolicy: "IfNotPresent"
-        image: "apache/nifi:1.14.0"
-        command:
-        - bash
-        - -c
-        - |
-          # Add main Kubernetes API certificate to default java certificates
-          # Copy source security folder and make cacerts readable
-          cd /tmp/security-data
-          cp -R /usr/local/openjdk-8/lib/security/* . && chmod 644 cacerts
-          # get the SSL certificate
-          openssl s_client -connect openshift.default.svc:443 </dev/null \
-              | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > openshift.default.svc.cert
-          # import certificate
-          keytool -importcert -noprompt -trustcacerts \
-              -alias openshift.default.svc -file openshift.default.svc.cert \
-              -keystore cacerts -storepass changeit
-        volumeMounts:
-          - name: "security-data"
-            mountPath: /tmp/security-data
       - name: cert-request
         imagePullPolicy: "IfNotPresent"
         image: "apache/nifi-toolkit:1.12.1"
@@ -295,8 +274,6 @@ spec:
             mountPath: /opt/nifi/data
           - name: "auth-conf"
             mountPath: /opt/nifi/nifi-current/auth-conf/
-          - name: "security-data"
-            mountPath: /usr/local/openjdk-8/lib/security
           - name: "config-data"
             mountPath: /opt/nifi/nifi-current/config-data
           - name: "flowfile-repository"
@@ -441,14 +418,6 @@ spec:
             - key: "flow.xml"
               path: "flow.xml"
   volumeClaimTemplates:
-    - metadata:
-        name: "security-data"
-      spec:
-        accessModes: ["ReadWriteOnce"]
-        storageClassName: $(storage_class)
-        resources:
-          requests:
-            storage: 1Mi
     - metadata:
         name: "config-data"
       spec:
