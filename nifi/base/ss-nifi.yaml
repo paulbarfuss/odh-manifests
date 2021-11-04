@@ -8,7 +8,7 @@ metadata:
 spec:
   podManagementPolicy: Parallel
   serviceName: nifi-headless
-  replicas: 0
+  replicas: 1
   selector:
     matchLabels:
       app: nifi
@@ -92,7 +92,7 @@ spec:
           ${NIFI_TOOLKIT_HOME}/bin/tls-toolkit.sh client \
             -c "nifi-ca" \
             -t sixteenCharacters \
-            --subjectAlternativeNames nifi.nifi.svc \
+            --subjectAlternativeNames nifi.nifi.svc,nifi-0.nifi-headless.nifi.svc.cluster.local,nifi-nifi.apps.eda.na-1.rht-labs.com \
             -D "CN=$(hostname -f), OU=NIFI" \
             -p 9090
 
@@ -103,7 +103,7 @@ spec:
           ${NIFI_TOOLKIT_HOME}/bin/tls-toolkit.sh client \
             -c "nifi-ca" \
             -t sixteenCharacters \
-            --subjectAlternativeNames nifi.nifi.svc \
+            --subjectAlternativeNames nifi.nifi.svc,nifi-0.nifi-headless.nifi.svc.cluster.local,nifi-nifi.apps.eda.na-1.rht-labs.com \
             -p 9090 \
             -D "CN=admin, OU=NIFI" \
             -T PKCS12
@@ -238,7 +238,7 @@ spec:
           echo NiFi running with PID ${nifi_pid}.
           wait ${nifi_pid}
           
-          /opt/nifi/nifi-toolkit-current/bin/tls-toolkit.sh standalone -n 'nifi-nifi-0.nifi-nifi-headless.nifi.svc.cluster.local' -C 'cn=admin,dc=example,dc=be' -o '/opt/nifi/nifi-current/conf/' -P env:PASS  -S env:PASS  --nifiPropertiesFile /opt/nifi/nifi-current/conf/nifi.properties
+          /opt/nifi/nifi-toolkit-current/bin/tls-toolkit.sh standalone -n 'nifi-nifi-0.nifi-nifi-headless.nifi.svc.cluster.local' -C 'uid=gmoutier,cn=users,cn=accounts,dc=rht-labs,dc=com' -o '/opt/nifi/nifi-current/conf/' -P env:PASS  -S env:PASS  --nifiPropertiesFile /opt/nifi/nifi-current/conf/nifi.properties
           exec bin/nifi.sh run
           
         resources:

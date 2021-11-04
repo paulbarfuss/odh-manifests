@@ -93,7 +93,7 @@ data:
             <property name="Users File">./conf/users.xml</property>
             <property name="Initial Admin Identity">uid=gmoutier,cn=users,cn=accounts,dc=rht-labs,dc=com</property>
             <property name="Legacy Authorized Users File"></property>
-            <property name="Node Identity 1"></property>
+            <property name="Node Identity 1">CN=nifi-0.nifi-headless.nifi.svc.cluster.local, OU=NIFI</property>
         </authorizer>
     </authorizers>
   authorizers.xml: |
@@ -141,6 +141,7 @@ data:
             <property name="Users File">./conf/users.xml</property>
             <property name="Initial Admin Identity">uid=gmoutier,cn=users,cn=accounts,dc=rht-labs,dc=com</property>
             <property name="Legacy Authorized Users File"></property>
+            <property name="Node Identity 1">CN=nifi-0.nifi-headless.nifi.svc.cluster.local, OU=NIFI</property>
         </authorizer>
     </authorizers>
   bootstrap-notification-services.xml: |
@@ -306,8 +307,8 @@ data:
         <property name="Connect Timeout">10 secs</property>
         <property name="Read Timeout">10 secs</property>
         <property name="Url">ldap://ipa.ipa.svc.cluster.local:389</property>
-        <property name="User Search Base">cn=groups,cn=accounts,dc=rht-labs,dc=com</property>
-        <property name="User Search Filter">(cn={0})</property>
+        <property name="User Search Base">cn=users,cn=accounts,dc=rht-labs,dc=com</property>
+        <property name="User Search Filter">(uid={0})</property>
         <property name="Identity Strategy"></property>
         <property name="Authentication Expiration">12 hours</property>
     </provider>
@@ -465,7 +466,7 @@ data:
     # We recommend configuring HTTPS instead. The administrators guide provides instructions on how to do this.
 
     nifi.web.war.directory=./lib
-    nifi.web.proxy.host=REPLACE_WITH_ROUTE_ADDRESS
+    nifi.web.proxy.host=nifi-nifi.apps.eda.na-1.rht-labs.com
 
     nifi.web.http.port=
     nifi.web.https.port=9443
@@ -492,7 +493,7 @@ data:
     nifi.security.truststore=/opt/nifi/nifi-current/conf/nifi-nifi-0.nifi-nifi-headless.ccfd.svc.cluster.local/truststore.jks
     nifi.security.truststoreType=jks
     nifi.security.truststorePasswd=env:PASS
-    proxiedEntity=cn=admin,dc=example,dc=be
+    proxiedEntity=uid=gmoutier,cn=users,cn=accounts,dc=rht-labs,dc=com
     nifi.security.user.authorizer=file-provider
     nifi.security.needClientAuth=true
 
