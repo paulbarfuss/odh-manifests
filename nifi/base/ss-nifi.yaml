@@ -127,12 +127,6 @@ spec:
             cat "${NIFI_HOME}/conf/authorizers.empty" > "${NIFI_HOME}/conf/authorizers.xml"
           fi
 
-          if [[ $(grep $(hostname) conf/login-identity-providers.temp) ]]; then
-            cat "${NIFI_HOME}/conf/login-identity-providers.temp" > "${NIFI_HOME}/conf/login-identity-providers.xml"
-          else
-            cat "${NIFI_HOME}/conf/login-identity-providers.empty" > "${NIFI_HOME}/conf/login-identity-providers.xml"
-          fi
-
           if ! test -f /opt/nifi/data/flow.xml.gz && test -f /opt/nifi/data/flow.xml; then
             gzip /opt/nifi/data/flow.xml
           fi
@@ -299,12 +293,9 @@ spec:
           - name: "bootstrap-notification-services-xml"
             mountPath: /opt/nifi/nifi-current/conf/bootstrap-notification-services.xml
             subPath: "bootstrap-notification-services.xml"
-          - name: "login-identity-providers-temp"
-            mountPath: /opt/nifi/nifi-current/conf/login-identity-providers.temp
-            subPath: "login-identity-providers.temp"
-          - name: "login-identity-providers-empty"
-            mountPath: /opt/nifi/nifi-current/conf/login-identity-providers.empty
-            subPath: "login-identity-providers.empty"
+          - name: "login-identity-providers-xml"
+            mountPath: /opt/nifi/nifi-current/conf/login-identity-providers.xml
+            subPath: "login-identity-providers.xml"
           - name: "state-management-xml"
             mountPath: /opt/nifi/nifi-current/conf/state-management.xml
             subPath: "state-management.xml"
@@ -387,18 +378,12 @@ spec:
           items:
             - key: "bootstrap-notification-services.xml"
               path: "bootstrap-notification-services.xml"
-      - name: "login-identity-providers-temp"
+      - name: "login-identity-providers-xml"
         configMap:
           name: nifi-config
           items:
             - key: "login-identity-providers.xml"
-              path: "login-identity-providers.temp"
-      - name: "login-identity-providers-empty"
-        configMap:
-          name: nifi-config
-          items:
-            - key: "login-identity-providers.empty"
-              path: "login-identity-providers.empty"
+              path: "login-identity-providers.xml"
       - name: "state-management-xml"
         configMap:
           name: nifi-config
