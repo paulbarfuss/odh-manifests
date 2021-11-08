@@ -22,7 +22,7 @@ data:
             <identifier>ldap-user-group-provider</identifier>
             <class>org.apache.nifi.ldap.tenants.LdapUserGroupProvider</class>
             <property name="Authentication Strategy">START_TLS</property>
-            <property name="Manager DN">uid=ldap-sa,cn=users,cn=accounts,dc=rht-labs,dc=com</property>
+            <property name="Manager DN"></property>
             <property name="Manager Password"></property>
             <property name="TLS - Keystore"></property>
             <property name="TLS - Keystore Password"></property>
@@ -91,9 +91,9 @@ data:
             <class>org.apache.nifi.authorization.FileAuthorizer</class>
             <property name="Authorizations File">./conf/authorizations.xml</property>
             <property name="Users File">./conf/users.xml</property>
-            <property name="Initial Admin Identity">uid=gmoutier,cn=users,cn=accounts,dc=rht-labs,dc=com</property>
+            <property name="Initial Admin Identity"></property>
             <property name="Legacy Authorized Users File"></property>
-            <property name="Node Identity 1">CN=nifi-0.nifi-headless.nifi.svc.cluster.local, OU=NIFI</property>
+            <property name="Node Identity 1"></property>
         </authorizer>
     </authorizers>
   authorizers.xml: |
@@ -107,7 +107,6 @@ data:
             <property name="Initial User Identity 0">CN=nifi-0.nifi-headless.nifi.svc.cluster.local, OU=NIFI</property>
             <property name="Initial User Identity 1">CN=nifi-1.nifi-headless.nifi.svc.cluster.local, OU=NIFI</property>
             <property name="Initial User Identity 2">CN=nifi-2.nifi-headless.nifi.svc.cluster.local, OU=NIFI</property>
-            <property name="Initial User Identity admin">uid=gmoutier,cn=users,cn=accounts,dc=rht-labs,dc=com</property>
         </userGroupProvider>
 
         <userGroupProvider>
@@ -134,16 +133,16 @@ data:
             <property name="User Search Base">cn=users,cn=accounts,dc=rht-labs,dc=com</property>
             <property name="User Object Class">person</property>
             <property name="User Search Scope">ONE_LEVEL</property>
-            <property name="User Search Filter">(uid={0})</property>
+            <property name="User Search Filter">(memberOf=cn=ipausers,cn=groups,cn=accounts,dc=rht-labs,dc=com)</property>
             <property name="User Identity Attribute">uid</property>
             <property name="User Group Name Attribute">memberOf</property>
             <property name="User Group Name Attribute - Referenced Group Attribute"></property>
             <property name="Group Search Base">cn=groups,cn=accounts,dc=rht-labs,dc=com</property>
-            <property name="Group Object Class">posixGroup</property>
+            <property name="Group Object Class">groupofnames</property>
             <property name="Group Search Scope">ONE_LEVEL</property>
-            <property name="Group Search Filter"></property>
+            <property name="Group Search Filter">(cn=ipausers,cn=groups,cn=accounts,dc=rht-labs,dc=com)</property>
             <property name="Group Name Attribute">cn</property>
-            <property name="Group Member Attribute"></property>
+            <property name="Group Member Attribute">member</property>
             <property name="Group Member Attribute - Referenced User Attribute"></property>
         </userGroupProvider>
 
@@ -159,7 +158,7 @@ data:
             <class>org.apache.nifi.authorization.FileAccessPolicyProvider</class>
             <property name="User Group Provider">composite-configurable-user-group-provider</property>
             <property name="Authorizations File">./auth-conf/authorizations.xml</property>
-            <property name="Initial Admin Identity">uid=gmoutier,cn=users,cn=accounts,dc=rht-labs,dc=com</property>
+            <property name="Initial Admin Identity">gmoutier</property>
             <property name="Legacy Authorized Users File"></property>
             <property name="Node Identity 0">CN=nifi-0.nifi-headless.nifi.svc.cluster.local, OU=NIFI</property>
             <property name="Node Identity 1">CN=nifi-1.nifi-headless.nifi.svc.cluster.local, OU=NIFI</property>
@@ -177,7 +176,7 @@ data:
             <class>org.apache.nifi.authorization.FileAuthorizer</class>
             <property name="Authorizations File">./conf/authorizations.xml</property>
             <property name="Users File">./conf/users.xml</property>
-            <property name="Initial Admin Identity">uid=gmoutier,cn=users,cn=accounts,dc=rht-labs,dc=com</property>
+            <property name="Initial Admin Identity">gmoutier</property>
             <property name="Legacy Authorized Users File"></property>
             <property name="Node Identity 1">CN=nifi-0.nifi-headless.nifi.svc.cluster.local, OU=NIFI</property>
             <property name="Node Identity 1">CN=nifi-1.nifi-headless.nifi.svc.cluster.local, OU=NIFI</property>
@@ -336,7 +335,7 @@ data:
         <property name="Url">ldap://ipa.ipa.svc.cluster.local:389</property>
         <property name="User Search Base">cn=users,cn=accounts,dc=rht-labs,dc=com</property>
         <property name="User Search Filter">(uid={0})</property>
-        <property name="Identity Strategy"></property>
+        <property name="Identity Strategy">USE_USERNAME</property>
         <property name="Authentication Expiration">12 hours</property>
     </provider>
     </loginIdentityProviders>
@@ -520,7 +519,7 @@ data:
     nifi.security.truststore=/opt/nifi/nifi-current/conf/nifi-nifi-0.nifi-nifi-headless.ccfd.svc.cluster.local/truststore.jks
     nifi.security.truststoreType=jks
     nifi.security.truststorePasswd=env:PASS
-    proxiedEntity=uid=gmoutier,cn=users,cn=accounts,dc=rht-labs,dc=com
+    proxiedEntity=gmoutier
     nifi.security.user.authorizer=managed-authorizer
     nifi.security.needClientAuth=true
 
@@ -541,8 +540,10 @@ data:
     # (certificates, LDAP, Kerberos) can be treated the same internally in NiFi. The following example demonstrates normalizing
     # DNs from certificates and principals from Kerberos into a common identity string:
     #
-    # nifi.security.identity.mapping.pattern.dn=^CN=(.*?), OU=(.*?), O=(.*?), L=(.*?), ST=(.*?), C=(.*?)$
-    # nifi.security.identity.mapping.value.dn=$1@$2
+    nifi.security.identity.mapping.pattern.dn=^CN=(.*?), OU=(.*?)
+    nifi.security.identity.mapping.value.dn=$1@$2
+    nifi.security.identity.mapping.pattern.dn2=^uid=(.*?),cn=(.*?),cn=(.*?),dc=(.*?),dc=(.*?)
+    nifi.security.identity.mapping.value.dn2=$1
     # nifi.security.identity.mapping.pattern.kerb=^(.*?)/instance@(.*?)$
     # nifi.security.identity.mapping.value.kerb=$1@$2
 

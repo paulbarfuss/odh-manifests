@@ -4,20 +4,15 @@ metadata:
   name: nifi-ca
   labels:
     app: ca-ca
-    chart: "ca-1.0.1"
-    release: "nifi"
-    heritage: "Helm"
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: ca-ca
-      release: nifi
   template:
     metadata:
       labels:
         app: ca-ca
-        release: nifi
     spec:
       serviceAccountName: nifi-ca-sa
       containers:

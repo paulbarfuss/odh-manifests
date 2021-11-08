@@ -13,5 +13,4 @@ spec:
       targetPort: metrics
   selector:
     app: nifi
-    release: nifi
   type: ClusterIP
