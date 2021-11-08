@@ -140,7 +140,7 @@ data:
             <property name="Group Search Base">cn=groups,cn=accounts,dc=rht-labs,dc=com</property>
             <property name="Group Object Class">groupofnames</property>
             <property name="Group Search Scope">ONE_LEVEL</property>
-            <property name="Group Search Filter">(cn=ipausers,cn=groups,cn=accounts,dc=rht-labs,dc=com)</property>
+            <property name="Group Search Filter">(cn=ipausers)</property>
             <property name="Group Name Attribute">cn</property>
             <property name="Group Member Attribute">member</property>
             <property name="Group Member Attribute - Referenced User Attribute"></property>
