@@ -1,0 +1,66 @@
+---
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: route-reencryptor
+spec:
+  template:
+    spec:
+      serviceAccountName: route-reencryptor-sa
+      containers:
+        - name: ose-cli
+          image: openshift4/ose-cli:v4.9
+          env:
+            - name: SERVICE_NAME
+              value: nifi
+            - name: ROUTE_NAME
+              value: nifi
+            - name: ROUTE_NAMESPACE
+              value: nifi
+            - name: ROUTER_CERTS_SECRET
+              value: router-certs-default
+          command:
+            - /bin/bash
+            - -c
+            - |
+              while [ true ]; do 
+                oc get route/${ROUTE_NAME} -n ${ROUTE_NAMESPACE}
+                if [ $? -eq 0 ]; then
+                  ROUTE_HOSTNAME=$(oc get route/${ROUTE_NAME} -n ${ROUTE_NAMESPACE} -o jsonpath="{.spec.host}")
+                  break
+                fi 
+                sleep 5s
+              done
+              CLUSTER_DOMAIN=$(oc whoami --show-console | grep -Po 'apps.*')
+              openssl s_client -showcerts -connect ${ROUTE_HOSTNAME}:443 </dev/null 2>/dev/null | awk '/BEGIN CERTIFICATE/,/END CERTIFICATE/ {print $0}' > /tmp/ca.crt
+              oc extract secret/${ROUTER_CERTS_SECRET} -n openshift-ingress --to=/tmp
+              oc replace -n ${ROUTE_NAMESPACE} -f - <<EOF
+              apiVersion: route.openshift.io/v1
+              kind: Route
+              metadata:
+                name: ${ROUTE_NAME}
+              spec:
+                host: ${ROUTE_HOSTNAME}
+                port:
+                  targetPort: https
+                tls:
+                  termination: Reencrypt
+                  insecureEdgeTerminationPolicy: Redirect
+                  key: |-
+              $(sed 's/^/      /' /tmp/tls.key)
+                  certificate: |-
+              $(sed 's/^/      /' /tmp/tls.crt)
+                  destinationCACertificate: |-
+              $(sed 's/^/      /' /tmp/ca.crt)
+                to:
+                  kind: Service
+                  name: ${SERVICE_NAME} 
+                  weight: 100
+                wildcardPolicy: None
+              EOF
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: Always
+      restartPolicy: OnFailure
+      schedulerName: default-scheduler

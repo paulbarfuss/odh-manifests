@@ -21,6 +21,8 @@ resources:
   - ss-nifi-registry.yaml
   - ss-nifi-zookeeper.yaml
   - ss-nifi.yaml
+  - reencrypt-job.yaml
+  - reencrypt-rbac.yaml
   - route-nifi.yaml
 
 commonLabels:
