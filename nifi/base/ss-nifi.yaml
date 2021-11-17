@@ -106,7 +106,7 @@ spec:
         - name: ROUTE_NAMESPACE
           value: nifi
         - name: ROUTER_CERTS_SECRET
-          value: router-certs-default
+          value: router-certs
         - name: CA_CERT_PATH
           value: /data/config-data/certs/nifi-cert.pem
         command:
