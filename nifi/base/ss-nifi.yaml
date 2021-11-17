@@ -95,6 +95,60 @@ spec:
         volumeMounts:
           - name: "config-data"
             mountPath: /data/config-data
+      - name: reencrypt-route
+        image: openshift4/ose-cli:v4.9
+        imagePullPolicy: 'IfNotPresent'
+        env:
+        - name: SERVICE_NAME
+          value: nifi
+        - name: ROUTE_NAME
+          value: nifi
+        - name: ROUTE_NAMESPACE
+          value: nifi
+        - name: ROUTER_CERTS_SECRET
+          value: router-certs-default
+        - name: CA_CERT_PATH
+          value: /data/config-data/certs/nifi-cert.pem
+        command:
+        - bash
+        - -c
+        - |
+          while [ true ]; do 
+            oc get route/${ROUTE_NAME} -n ${ROUTE_NAMESPACE}
+            if [ $? -eq 0 ]; then
+              ROUTE_HOSTNAME=$(oc get route/${ROUTE_NAME} -n ${ROUTE_NAMESPACE} -o jsonpath="{.spec.host}")
+              break
+            fi 
+            sleep 5s
+          done
+          oc extract secret/${ROUTER_CERTS_SECRET} -n openshift-ingress --to=/tmp
+          oc replace -n ${ROUTE_NAMESPACE} -f - <<EOF
+          apiVersion: route.openshift.io/v1
+          kind: Route
+          metadata:
+            name: ${ROUTE_NAME}
+          spec:
+            host: ${ROUTE_HOSTNAME}
+            port:
+              targetPort: https
+            tls:
+              termination: Reencrypt
+              insecureEdgeTerminationPolicy: Redirect
+              key: |-
+          $(sed 's/^/      /' /tmp/tls.key)
+              certificate: |-
+          $(sed 's/^/      /' /tmp/tls.crt)
+              destinationCACertificate: |-
+          $(sed 's/^/      /' ${CA_CERT_PATH})
+            to:
+              kind: Service
+              name: ${SERVICE_NAME} 
+              weight: 100
+            wildcardPolicy: None
+          EOF
+        volumeMounts:
+        - name: 'config-data'
+          mountPath: /data/config-data
 # yamllint disable rule:line-length
       containers:
       - name: server
