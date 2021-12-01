@@ -38,7 +38,6 @@ configMapGenerator:
   - params.env
 generatorOptions:
   disableNameSuffixHash: true
-  argocd.argoproj.io/compare-options: IgnoreExtraneous
 vars:
 - name: namespace
   objref:
