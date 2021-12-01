@@ -39,18 +39,13 @@ configMapGenerator:
 generatorOptions:
   disableNameSuffixHash: true
 vars:
-  #- name: namespace
-  #  objref:
-  #    kind: ConfigMap
-  #    name: jupyterhub-cfg
-  #    apiVersion: v1
-  #  fieldref:
-  #    fieldpath: metadata.namespace
 - name: namespace
   objref:
-    apiVersion: apps/v1beta1
-    kind: Namespace
-    name: opendatahub
+    kind: ConfigMap
+    name: jupyterhub-cfg
+    apiVersion: v1
+  fieldref:
+    fieldpath: metadata.namespace
 - name: storage_class
   objref:
     kind: ConfigMap

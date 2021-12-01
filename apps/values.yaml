@@ -1,0 +1,5 @@
+# Default values for app of apps.
+#
+
+repo: https://github.com/paulbarfuss/odh-manifests.git
+
